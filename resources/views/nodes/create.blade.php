@@ -1,0 +1,80 @@
+@component('layouts.adminlte', ['title' => 'Создать узел'])
+    <div class="card">
+        <div class="card-body">
+            <form action="{{ route('nodes.store') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label for="title">Название</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        class="form-control"
+                        value="{{ old('title') }}"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        class="form-control"
+                        rows="4"
+                    >{{ old('description') }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="parent_id">Родитель</label>
+                    <select id="parent_id" name="parent_id" class="form-control">
+                        <option value="">Корневой узел (без родителя)</option>
+                        @foreach ($parents as $parent)
+                            <option
+                                value="{{ $parent->id }}"
+                                @selected(old('parent_id', $selectedParentId) == $parent->id)
+                            >
+                                {{ $parent->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="form-text text-muted">
+                        У каждого узла может быть только один родитель.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="sort_order">Порядок сортировки</label>
+                    <input
+                        type="number"
+                        id="sort_order"
+                        name="sort_order"
+                        class="form-control"
+                        value="{{ old('sort_order', 0) }}"
+                        min="0"
+                        required
+                    >
+                    <small class="form-text text-muted">
+                        При раскрытии сначала показывается узел с меньшим значением сортировки.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="image">Изображение</label>
+                    <div class="custom-file">
+                        <input type="file" id="image" name="image" class="custom-file-input">
+                        <label class="custom-file-label" for="image">Выберите файл</label>
+                    </div>
+                </div>
+                <div class="form-group form-check">
+                    <input
+                        type="checkbox"
+                        id="is_expanded"
+                        name="is_expanded"
+                        class="form-check-input"
+                        value="1"
+                        @checked(old('is_expanded'))
+                    >
+                    <label class="form-check-label" for="is_expanded">Развернуть по умолчанию</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать узел</button>
+            </form>
+        </div>
+    </div>
+@endcomponent

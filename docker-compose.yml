@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mindmap_db
+    restart: unless-stopped
+    ports:
+      - "54388:5432"   # внешний порт НЕ стандартный
+    environment:
+      POSTGRES_DB: mindmap
+      POSTGRES_USER: mindmap
+      POSTGRES_PASSWORD: mindmap
+    volumes:
+      - mindmap_pg_data:/var/lib/postgresql/data
+
+volumes:
+  mindmap_pg_data:
