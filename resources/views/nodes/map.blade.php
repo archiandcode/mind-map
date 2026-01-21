@@ -195,7 +195,9 @@
     tx: 120,
     ty: 220,
     dragging: false,
+    dragAllowed: true,
     suppressClick: false,
+    downNodeId: null,
     last: {x:0,y:0},
     edgeKeys: new Set(),
   };
@@ -326,15 +328,6 @@
         <div class="desc"></div>
       </div>
     `;
-
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (state.suppressClick) {
-        state.suppressClick = false;
-        return;
-      }
-      onToggle(node.id);
-    });
 
     el.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -594,23 +587,28 @@
   let pinchStartTy = 0;
   viewport.addEventListener('pointerdown', (e) => {
     if (e.button && e.button !== 0) return;
-    if (e.target.closest('img')) return;
+    state.downNodeId = e.target.closest('.node')?.dataset?.id || null;
+    state.dragAllowed = !e.target.closest('img');
     pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
     viewport.setPointerCapture(e.pointerId);
 
     if (pointers.size === 1) {
-      state.dragging = true;
+      state.dragging = state.dragAllowed;
       state.suppressClick = false;
-      activePointerId = e.pointerId;
-      state.last.x = e.clientX;
-      state.last.y = e.clientY;
-      dragStart = {x: e.clientX, y: e.clientY};
+      activePointerId = state.dragAllowed ? e.pointerId : null;
+      if (state.dragAllowed) {
+        state.last.x = e.clientX;
+        state.last.y = e.clientY;
+        dragStart = {x: e.clientX, y: e.clientY};
+      }
       return;
     }
 
     if (pointers.size === 2) {
       state.dragging = false;
       activePointerId = null;
+      state.downNodeId = null;
+      state.suppressClick = true;
       const [a, b] = [...pointers.values()];
       pinchStartDist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
       pinchStartScale = state.scale;
@@ -660,6 +658,10 @@
     if (pointers.size < 2) {
       pinchStartDist = 0;
     }
+    if (!state.suppressClick && state.downNodeId) {
+      onToggle(state.downNodeId);
+    }
+    state.downNodeId = null;
   }
   viewport.addEventListener('pointerup', endPointerDrag);
   viewport.addEventListener('pointercancel', endPointerDrag);
