@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class NodeController extends Controller
@@ -20,12 +21,17 @@ class NodeController extends Controller
             ->orderBy('title')
             ->get();
 
+        $hasRoot = Node::query()
+            ->whereNull('parent_id')
+            ->exists();
+
         $grouped = $nodes->groupBy(function (Node $node) {
             return $node->parent_id ?? 0;
         });
 
         return view('nodes.index', [
             'grouped' => $grouped,
+            'hasRoot' => $hasRoot,
         ]);
     }
 
@@ -76,6 +82,10 @@ class NodeController extends Controller
     {
         $selectedParentId = $request->integer('parent_id');
 
+        $hasRoot = Node::query()
+            ->whereNull('parent_id')
+            ->exists();
+
         $parents = Node::query()
             ->orderBy('title')
             ->get(['id', 'title']);
@@ -83,6 +93,7 @@ class NodeController extends Controller
         return view('nodes.create', [
             'parents' => $parents,
             'selectedParentId' => $selectedParentId,
+            'hasRoot' => $hasRoot,
         ]);
     }
 
@@ -98,6 +109,18 @@ class NodeController extends Controller
         ]);
 
         $data['is_expanded'] = $request->boolean('is_expanded');
+
+        if (empty($data['parent_id'])) {
+            $hasRoot = Node::query()
+                ->whereNull('parent_id')
+                ->exists();
+
+            if ($hasRoot) {
+                throw ValidationException::withMessages([
+                    'parent_id' => 'Корневой элемент может быть только один.',
+                ]);
+            }
+        }
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('nodes', 'public');
@@ -126,6 +149,19 @@ class NodeController extends Controller
         ]);
 
         $data['is_expanded'] = $request->boolean('is_expanded');
+
+        if (empty($data['parent_id'])) {
+            $otherRootExists = Node::query()
+                ->whereNull('parent_id')
+                ->whereKeyNot($node->id)
+                ->exists();
+
+            if ($otherRootExists) {
+                throw ValidationException::withMessages([
+                    'parent_id' => 'Корневой элемент может быть только один.',
+                ]);
+            }
+        }
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('nodes', 'public');

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $title ?? 'Mindmap' }}</title>
+        <title>{{ $title ?? '' }}</title>
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
@@ -18,7 +18,7 @@
                         </a>
                     </li>
                     <li class="nav-item d-none d-sm-inline-block">
-                        <span class="nav-link font-weight-bold">Mindmap</span>
+                        <span class="nav-link font-weight-bold"></span>
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
@@ -35,7 +35,7 @@
 
             <aside class="main-sidebar sidebar-dark-primary elevation-4">
                 <a href="{{ route('nodes.index') }}" class="brand-link">
-                    <span class="brand-text font-weight-light">Mindmap</span>
+                    <span class="brand-text font-weight-light"></span>
                 </a>
                 <div class="sidebar">
                     <nav class="mt-2">
@@ -51,7 +51,7 @@
                                     class="nav-link @if (request()->routeIs('nodes.index')) active @endif"
                                 >
                                     <i class="nav-icon fas fa-sitemap"></i>
-                                    <p>Иерархия</p>
+                                    <p>Древо</p>
                                 </a>
                             </li>
                         </ul>
@@ -62,7 +62,7 @@
             <div class="content-wrapper">
                 <div class="content-header">
                     <div class="container-fluid">
-                        <h1 class="m-0">{{ $title ?? 'Mindmap' }}</h1>
+                        <h1 class="m-0">{{ $title ?? '' }}</h1>
                     </div>
                 </div>
                 <section class="content">

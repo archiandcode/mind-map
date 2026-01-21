@@ -15,9 +15,9 @@
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="card-title mb-0">Иерархия</h3>
-                <button class="btn btn-primary btn-sm js-add-child" data-parent-id="" data-parent-title="Корень" data-toggle="modal" data-target="#nodeModal">
-                    Добавить корневой узел
+                <h3 class="card-title mb-0">Древо</h3>
+                <button class="btn btn-primary btn-sm js-add-child @if ($hasRoot) d-none @endif" data-parent-id="" data-parent-title="Корень" data-toggle="modal" data-target="#nodeModal">
+                    Добавить корневой элемент
                 </button>
             </div>
 
@@ -32,7 +32,7 @@
             <form class="modal-content" action="{{ route('nodes.store') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="nodeModalLabel">Создать узел</h5>
+                    <h5 class="modal-title" id="nodeModalLabel">Создать элемент</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -82,7 +82,7 @@
                 @csrf
                 <input type="hidden" name="_method" value="PUT">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="nodeEditModalLabel">Редактировать узел</h5>
+                    <h5 class="modal-title" id="nodeEditModalLabel">Редактировать элемент</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -132,7 +132,7 @@
                 @csrf
                 <input type="hidden" name="_method" value="DELETE">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="nodeDeleteModalLabel">Удалить узел</h5>
+                    <h5 class="modal-title" id="nodeDeleteModalLabel">Удалить элемент</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -164,7 +164,7 @@
             });
         }
 
-        async function reloadTree(treeContainer) {
+        async function reloadTree(treeContainer, rootAddButton) {
             const treeResponse = await fetch('{{ route('nodes.tree') }}', {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             });
@@ -173,6 +173,7 @@
                 const html = await treeResponse.text();
                 treeContainer.innerHTML = html;
                 initTree(true);
+                updateRootButton(treeContainer, rootAddButton);
             }
         }
 
@@ -212,6 +213,15 @@
             });
         }
 
+        function updateRootButton(treeContainer, rootAddButton) {
+            if (!rootAddButton) {
+                return;
+            }
+            const marker = treeContainer.querySelector('[data-has-root]');
+            const hasRoot = marker && marker.getAttribute('data-has-root') === '1';
+            rootAddButton.classList.toggle('d-none', hasRoot);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const treeContainer = document.getElementById('nodes-tree');
             const parentIdField = document.getElementById('modal-parent-id');
@@ -225,6 +235,7 @@
             const editImagePreview = document.getElementById('edit-image-preview');
 
             initTree(false);
+            updateRootButton(treeContainer, rootAddButton);
 
             if (rootAddButton) {
                 rootAddButton.addEventListener('click', () => {
@@ -343,7 +354,7 @@
                     }
 
                     if (!response.ok) {
-                        modalErrors.textContent = 'Не удалось сохранить узел. Попробуйте еще раз.';
+                        modalErrors.textContent = 'Не удалось сохранить элемент. Попробуйте еще раз.';
                         modalErrors.classList.remove('d-none');
                         return;
                     }
@@ -355,7 +366,7 @@
                     form.reset();
                     createImagePreview.classList.add('d-none');
                     createImagePreview.removeAttribute('src');
-                    await reloadTree(treeContainer);
+                    await reloadTree(treeContainer, rootAddButton);
                 } catch (error) {
                     modalErrors.textContent = 'Сетевая ошибка. Попробуйте еще раз.';
                     modalErrors.classList.remove('d-none');
@@ -394,7 +405,7 @@
                     }
 
                     if (!response.ok) {
-                        editErrors.textContent = 'Не удалось обновить узел. Попробуйте еще раз.';
+                        editErrors.textContent = 'Не удалось обновить элемент. Попробуйте еще раз.';
                         editErrors.classList.remove('d-none');
                         return;
                     }
@@ -403,7 +414,7 @@
                         window.$('#nodeEditModal').modal('hide');
                     }
 
-                    await reloadTree(treeContainer);
+                    await reloadTree(treeContainer, rootAddButton);
                 } catch (error) {
                     editErrors.textContent = 'Сетевая ошибка. Изменения не сохранены.';
                     editErrors.classList.remove('d-none');
@@ -433,13 +444,13 @@
 
                     if (response.status === 422) {
                         const data = await response.json();
-                        deleteErrors.textContent = data.message || 'Нельзя удалить узел.';
+                        deleteErrors.textContent = data.message || 'Нельзя удалить элемент.';
                         deleteErrors.classList.remove('d-none');
                         return;
                     }
 
                     if (!response.ok) {
-                        deleteErrors.textContent = 'Не удалось удалить узел. Попробуйте еще раз.';
+                        deleteErrors.textContent = 'Не удалось удалить элемент. Попробуйте еще раз.';
                         deleteErrors.classList.remove('d-none');
                         return;
                     }
@@ -448,7 +459,7 @@
                         window.$('#nodeDeleteModal').modal('hide');
                     }
 
-                    await reloadTree(treeContainer);
+                    await reloadTree(treeContainer, rootAddButton);
                 } catch (error) {
                     deleteErrors.textContent = 'Сетевая ошибка. Удаление не выполнено.';
                     deleteErrors.classList.remove('d-none');

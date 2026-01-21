@@ -65,9 +65,11 @@
 @endphp
 
 @if ($grouped->isEmpty())
+    <span class="d-none" data-has-root="0"></span>
     <div class="alert alert-light border mb-0">
-        Пока нет узлов. Нажмите "Добавить корневой узел", чтобы начать.
+        Пока нет элементов. Нажмите "Добавить корневой элемент", чтобы начать.
     </div>
 @else
+    <span class="d-none" data-has-root="{{ $grouped->has(0) ? '1' : '0' }}"></span>
     @php $renderTree(0); @endphp
 @endif

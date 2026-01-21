@@ -1,4 +1,4 @@
-@component('layouts.adminlte', ['title' => 'Создать узел'])
+@component('layouts.adminlte', ['title' => 'Создать элемент'])
     <div class="card">
         <div class="card-body">
             <form action="{{ route('nodes.store') }}" method="post" enctype="multipart/form-data">
@@ -26,7 +26,9 @@
                 <div class="form-group">
                     <label for="parent_id">Родитель</label>
                     <select id="parent_id" name="parent_id" class="form-control">
-                        <option value="">Корневой узел (без родителя)</option>
+                        @if (!$hasRoot)
+                            <option value="">Корневой элемент (без родителя)</option>
+                        @endif
                         @foreach ($parents as $parent)
                             <option
                                 value="{{ $parent->id }}"
@@ -37,7 +39,7 @@
                         @endforeach
                     </select>
                     <small class="form-text text-muted">
-                        У каждого узла может быть только один родитель.
+                        Корневой элемент может быть только один.
                     </small>
                 </div>
                 <div class="form-group">
@@ -52,7 +54,7 @@
                         required
                     >
                     <small class="form-text text-muted">
-                        При раскрытии сначала показывается узел с меньшим значением сортировки.
+                        При раскрытии сначала показывается элемент с меньшим значением сортировки.
                     </small>
                 </div>
                 <div class="form-group">
@@ -73,7 +75,7 @@
                     >
                     <label class="form-check-label" for="is_expanded">Развернуть по умолчанию</label>
                 </div>
-                <button type="submit" class="btn btn-primary">Создать узел</button>
+                <button type="submit" class="btn btn-primary">Создать элемент</button>
             </form>
         </div>
     </div>

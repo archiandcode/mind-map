@@ -3,19 +3,18 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Вход | Mindmap</title>
+        <title>Вход</title>
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     </head>
     <body class="hold-transition login-page">
         <div class="login-box">
-            <div class="login-logo">
-                <b>Mind</b>map
-            </div>
             <div class="card">
                 <div class="card-body login-card-body">
-                    <p class="login-box-msg">Войдите, чтобы продолжить</p>
+
+                    <div class="login-logo">Вход</div>
+
 
                     @if ($errors->any())
                         <div class="alert alert-danger">
