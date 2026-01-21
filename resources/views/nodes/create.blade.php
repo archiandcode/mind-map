@@ -24,7 +24,7 @@
                     >{{ old('description') }}</textarea>
                 </div>
                 <div class="form-group">
-                    <label for="parent_id">Родитель</label>
+                    <label for="parent_id">Родительский узел</label>
                     <select id="parent_id" name="parent_id" class="form-control">
                         @if (!$hasRoot)
                             <option value="">Корневой элемент (без родителя)</option>
@@ -63,17 +63,6 @@
                         <input type="file" id="image" name="image" class="custom-file-input">
                         <label class="custom-file-label" for="image">Выберите файл</label>
                     </div>
-                </div>
-                <div class="form-group form-check">
-                    <input
-                        type="checkbox"
-                        id="is_expanded"
-                        name="is_expanded"
-                        class="form-check-input"
-                        value="1"
-                        @checked(old('is_expanded'))
-                    >
-                    <label class="form-check-label" for="is_expanded">Развернуть по умолчанию</label>
                 </div>
                 <button type="submit" class="btn btn-primary">Создать элемент</button>
             </form>
