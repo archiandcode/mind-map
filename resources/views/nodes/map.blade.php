@@ -580,16 +580,56 @@
   }, {passive:false});
 
   let activePointerId = null;
+  const pointers = new Map();
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+  let pinchStartTx = 0;
+  let pinchStartTy = 0;
   viewport.addEventListener('pointerdown', (e) => {
     if (e.button && e.button !== 0) return;
-    if (e.target.closest('.node')) return;
-    state.dragging = true;
-    activePointerId = e.pointerId;
+    pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
     viewport.setPointerCapture(e.pointerId);
-    state.last.x = e.clientX;
-    state.last.y = e.clientY;
+
+    if (pointers.size === 1) {
+      if (e.target.closest('.node')) return;
+      state.dragging = true;
+      activePointerId = e.pointerId;
+      state.last.x = e.clientX;
+      state.last.y = e.clientY;
+      return;
+    }
+
+    if (pointers.size === 2) {
+      state.dragging = false;
+      activePointerId = null;
+      const [a, b] = [...pointers.values()];
+      pinchStartDist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      pinchStartScale = state.scale;
+      pinchStartTx = state.tx;
+      pinchStartTy = state.ty;
+    }
   });
   viewport.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
+
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const rect = viewport.getBoundingClientRect();
+      const mx = (a.x + b.x) / 2 - rect.left;
+      const my = (a.y + b.y) / 2 - rect.top;
+      const wx = (mx - pinchStartTx) / pinchStartScale;
+      const wy = (my - pinchStartTy) / pinchStartScale;
+      const newScale = clamp(pinchStartScale * (dist / pinchStartDist), 0.25, 2.2);
+
+      state.scale = newScale;
+      state.tx = mx - wx * newScale;
+      state.ty = my - wy * newScale;
+      applyTransform();
+      return;
+    }
+
     if (!state.dragging || e.pointerId !== activePointerId) return;
     const dx = e.clientX - state.last.x;
     const dy = e.clientY - state.last.y;
@@ -600,9 +640,14 @@
     applyTransform();
   });
   function endPointerDrag(e) {
-    if (e.pointerId !== activePointerId) return;
-    state.dragging = false;
-    activePointerId = null;
+    pointers.delete(e.pointerId);
+    if (e.pointerId === activePointerId) {
+      state.dragging = false;
+      activePointerId = null;
+    }
+    if (pointers.size < 2) {
+      pinchStartDist = 0;
+    }
   }
   viewport.addEventListener('pointerup', endPointerDrag);
   viewport.addEventListener('pointercancel', endPointerDrag);
