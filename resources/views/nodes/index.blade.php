@@ -41,7 +41,7 @@
                     <div id="modal-errors" class="alert alert-danger d-none"></div>
                     <input type="hidden" name="parent_id" id="modal-parent-id">
                     <div class="form-group">
-                        <label for="modal-parent-title">Родитель</label>
+                        <label for="modal-parent-title">Родительский узел</label>
                         <input type="text" id="modal-parent-title" class="form-control" readonly>
                     </div>
                     <div class="form-group">
@@ -62,10 +62,6 @@
                             <input type="file" id="modal-image" name="image" class="form-control-file">
                             <img id="modal-image-preview" class="img-thumbnail mt-2 d-none" alt="Предпросмотр">
                         </div>
-                    </div>
-                    <div class="form-group form-check">
-                        <input type="checkbox" id="modal-expanded" name="is_expanded" class="form-check-input" value="1">
-                        <label class="form-check-label" for="modal-expanded">Развернуть по умолчанию</label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -91,7 +87,7 @@
                     <div id="edit-modal-errors" class="alert alert-danger d-none"></div>
                     <input type="hidden" name="parent_id" id="edit-parent-id">
                     <div class="form-group">
-                        <label for="edit-parent-title">Родитель</label>
+                        <label for="edit-parent-title">Родительский узел</label>
                         <input type="text" id="edit-parent-title" class="form-control" readonly>
                     </div>
                     <div class="form-group">
@@ -112,10 +108,6 @@
                             <input type="file" id="edit-image" name="image" class="form-control-file">
                             <img id="edit-image-preview" class="img-thumbnail mt-2 d-none" alt="Текущее изображение">
                         </div>
-                    </div>
-                    <div class="form-group form-check">
-                        <input type="checkbox" id="edit-expanded" name="is_expanded" class="form-check-input" value="1">
-                        <label class="form-check-label" for="edit-expanded">Развернуть по умолчанию</label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -286,7 +278,6 @@
                     const title = editBtn.getAttribute('data-node-title') || '';
                     const description = editBtn.getAttribute('data-node-description') || '';
                     const sortOrder = editBtn.getAttribute('data-node-sort') || '0';
-                    const expanded = editBtn.getAttribute('data-node-expanded') === '1';
                     const parentId = editBtn.getAttribute('data-node-parent-id') || '';
                     const parentTitle = editBtn.getAttribute('data-node-parent-title') || 'Корень';
                     const imageUrl = editBtn.getAttribute('data-node-image-url') || '';
@@ -295,7 +286,6 @@
                     document.getElementById('edit-title').value = title;
                     document.getElementById('edit-description').value = description;
                     document.getElementById('edit-sort-order').value = sortOrder;
-                    document.getElementById('edit-expanded').checked = expanded;
                     editParentIdField.value = parentId;
                     editParentTitleField.value = parentTitle;
                     document.getElementById('edit-image').value = '';
