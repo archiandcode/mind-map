@@ -587,11 +587,11 @@
   let pinchStartTy = 0;
   viewport.addEventListener('pointerdown', (e) => {
     if (e.button && e.button !== 0) return;
+    if (e.target.closest('img')) return;
     pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
     viewport.setPointerCapture(e.pointerId);
 
     if (pointers.size === 1) {
-      if (e.target.closest('.node')) return;
       state.dragging = true;
       activePointerId = e.pointerId;
       state.last.x = e.clientX;
