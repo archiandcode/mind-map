@@ -25,6 +25,7 @@
       background: radial-gradient(1100px 680px at 22% 18%, #fbf9e7, var(--bg));
       user-select: none;
       cursor: grab;
+      touch-action: none;
     }
     #viewport:active{ cursor: grabbing; }
 
@@ -115,6 +116,8 @@
       height: 100%;
       object-fit: cover;
       object-position: center;
+      -webkit-user-drag: none;
+      user-drag: none;
     }
 
     .node .content{
@@ -312,7 +315,7 @@
 
     el.innerHTML = `
       <div class="thumb" aria-hidden="true">
-        <img alt="" loading="lazy" />
+        <img alt="" loading="lazy" draggable="false" />
       </div>
       <div class="content">
         <div class="titleRow">
@@ -576,13 +579,18 @@
     applyTransform();
   }, {passive:false});
 
-  viewport.addEventListener('mousedown', (e) => {
+  let activePointerId = null;
+  viewport.addEventListener('pointerdown', (e) => {
+    if (e.button && e.button !== 0) return;
+    if (e.target.closest('.node')) return;
     state.dragging = true;
+    activePointerId = e.pointerId;
+    viewport.setPointerCapture(e.pointerId);
     state.last.x = e.clientX;
     state.last.y = e.clientY;
   });
-  window.addEventListener('mousemove', (e) => {
-    if (!state.dragging) return;
+  viewport.addEventListener('pointermove', (e) => {
+    if (!state.dragging || e.pointerId !== activePointerId) return;
     const dx = e.clientX - state.last.x;
     const dy = e.clientY - state.last.y;
     state.last.x = e.clientX;
@@ -591,7 +599,13 @@
     state.ty += dy;
     applyTransform();
   });
-  window.addEventListener('mouseup', () => state.dragging = false);
+  function endPointerDrag(e) {
+    if (e.pointerId !== activePointerId) return;
+    state.dragging = false;
+    activePointerId = null;
+  }
+  viewport.addEventListener('pointerup', endPointerDrag);
+  viewport.addEventListener('pointercancel', endPointerDrag);
 
   function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
