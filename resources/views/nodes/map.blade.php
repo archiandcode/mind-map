@@ -134,7 +134,8 @@
       font-weight: 750;
       letter-spacing: .2px;
       line-height: 1.2;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
     .node .meta{
       font-size: 12px;
@@ -195,8 +196,9 @@
     edgeKeys: new Set(),
   };
 
-  const X_PAD = 120;
+  const X_PAD = 180;
   const Y_PAD = 34;
+  const GROUP_PAD = 80;
 
   function makeNode({id, label, parentId=null, depth=0, img=null, desc="", expanded=false, sortOrder=0}) {
     return {
@@ -234,7 +236,7 @@
         depth: 0,
         img: item.image_url || null,
         desc: item.description || "",
-        expanded: Boolean(item.is_expanded),
+        expanded: false,
         sortOrder: item.sort_order || 0
       })
     );
@@ -412,9 +414,11 @@
         if (!c) continue;
 
         const bandH = placeSubtree(cid, cursor);
-        cursor += bandH + Y_PAD;
-        totalChildren += bandH;
-        if (i !== childIds.length - 1) totalChildren += Y_PAD;
+        const gap = i === childIds.length - 1
+          ? 0
+          : Y_PAD + ((c.expanded && c.children.length) ? GROUP_PAD : 0);
+        cursor += bandH + gap;
+        totalChildren += bandH + gap;
       }
 
       const childrenTop = topY;
