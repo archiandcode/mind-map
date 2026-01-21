@@ -195,6 +195,7 @@
     tx: 120,
     ty: 220,
     dragging: false,
+    suppressClick: false,
     last: {x:0,y:0},
     edgeKeys: new Set(),
   };
@@ -328,6 +329,10 @@
 
     el.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (state.suppressClick) {
+        state.suppressClick = false;
+        return;
+      }
       onToggle(node.id);
     });
 
@@ -581,6 +586,8 @@
 
   let activePointerId = null;
   const pointers = new Map();
+  const DRAG_THRESHOLD = 6;
+  let dragStart = {x: 0, y: 0};
   let pinchStartDist = 0;
   let pinchStartScale = 1;
   let pinchStartTx = 0;
@@ -593,9 +600,11 @@
 
     if (pointers.size === 1) {
       state.dragging = true;
+      state.suppressClick = false;
       activePointerId = e.pointerId;
       state.last.x = e.clientX;
       state.last.y = e.clientY;
+      dragStart = {x: e.clientX, y: e.clientY};
       return;
     }
 
@@ -635,6 +644,9 @@
     const dy = e.clientY - state.last.y;
     state.last.x = e.clientX;
     state.last.y = e.clientY;
+    const moveDist = Math.hypot(e.clientX - dragStart.x, e.clientY - dragStart.y);
+    if (moveDist < DRAG_THRESHOLD) return;
+    state.suppressClick = true;
     state.tx += dx;
     state.ty += dy;
     applyTransform();
